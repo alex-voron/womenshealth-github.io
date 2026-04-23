@@ -19,28 +19,37 @@
     </div>
 
     <div id="main-app" class="page">
-    <div id="end-reminder" class="notification">
-        ⚠️ <b>Місячні закінчилися?</b> Внесіть дату закінчення.
-        <button class="btn btn-small" onclick="showPage('setup-cycle-page')">Внести дату</button>
-    </div>
-
-    <div class="card">
-        <div class="circle-container">
-            ...
+        <div id="end-reminder" class="notification">
+            ⚠️ <b>Місячні закінчилися?</b> Внесіть дату закінчення.
+            <button class="btn btn-small" onclick="showPage('setup-cycle-page')">Внести дату</button>
         </div>
-        <h3 id="phase-name">Завантаження...</h3>
-    </div>
 
-    <div id="accuracy-check" class="card" style="display:none; border-left: 5px solid var(--water-blue); background: #f0f7ff;">
-        <h4 style="margin-top: 0; color: var(--water-blue);">📊 Перевірка прогнозу</h4>
-        <p style="font-size: 14px; margin-bottom: 15px;">Ваш цикл почався сьогодні? Це допоможе алгоритму Flo-style стати точнішим.</p>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-small" style="background: var(--water-blue); flex: 1;" onclick="confirmPrediction(true)">Так, почався</button>
-            <button class="btn btn-small" style="background: #7f8c8d; flex: 1;" onclick="showPage('setup-cycle-page')">Ні, інша дата</button>
+        <div class="card">
+            <div class="circle-container">
+                <svg width="160" height="160">
+                    <circle class="circle-bg" cx="80" cy="80" r="70"></circle>
+                    <circle id="progress-bar" class="circle-progress" cx="80" cy="80" r="70" stroke-dasharray="0 440"></circle>
+                </svg>
+                <div class="circle-text">
+                    <div id="day-num">?</div>
+                    <div class="label">день циклу</div>
+                    <div id="days-left"></div>
+                </div>
+            </div>
+            <h3 id="phase-name" style="text-align:center;">Завантаження...</h3>
         </div>
+
+        <div id="accuracy-check" class="card" style="display:none; border-left: 5px solid var(--water-blue); background: #f0f7ff;">
+            <h4 style="margin-top: 0; color: var(--water-blue);">📊 Перевірка прогнозу</h4>
+            <p style="font-size: 14px; margin-bottom: 15px;">Ваш цикл почався сьогодні? Це допоможе алгоритму стати точнішим.</p>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-small" style="background: var(--water-blue); flex: 1;" onclick="confirmPrediction(true)">Так, почався</button>
+                <button class="btn btn-small" style="background: #7f8c8d; flex: 1;" onclick="showPage('setup-cycle-page')">Ні, інша дата</button>
+            </div>
+        </div>
+
+        <button class="btn" onclick="showPage('profile-page')">👤 Мій Профіль & Налаштування</button>
     </div>
-    <button class="btn" onclick="showPage('profile-page')">👤 Мій Профіль & Налаштування</button>
-</div>
 
     <div id="profile-page" class="page">
         <div class="card">
@@ -64,7 +73,7 @@
             <input type="date" id="start-date" class="input-field">
             <label>Закінчення:</label>
             <input type="date" id="end-date" class="input-field">
-            <div class="checkbox-group">
+            <div class="checkbox-group" style="margin: 15px 0;">
                 <input type="checkbox" id="still-going" onchange="toggleEndInput(this)"> 
                 <label for="still-going">Ще тривають ⏳</label>
             </div>
@@ -73,8 +82,8 @@
         </div>
     </div>
 
-    <script src="js/app.js"></script>
     <script src="js/profile.js"></script>
     <script src="js/calendar.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
