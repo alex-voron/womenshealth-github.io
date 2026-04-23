@@ -3,6 +3,10 @@
     --soft-pink: #fff1f3; 
     --text-dark: #4a4a4a; 
     --water-blue: #3498db;
+    --flo-pink: #ff85a2;      /* Дні місячних */
+    --flo-teal: #40e0d0;      /* Овуляція та фертильність */
+    --flo-grey: #95a5a6;      /* Затримка */
+    --flo-bg: #fafafa;
 }
 
 body { 
