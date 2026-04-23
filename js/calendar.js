@@ -2,9 +2,24 @@
 
 function toggleEndInput(cb) {
     const endInput = document.getElementById('end-date');
-    if (endInput) {
-        endInput.disabled = cb.checked;
-        if(cb.checked) endInput.value = "";
+    if (!endInput) return;
+
+    if (cb.checked) {
+        endInput.disabled = true;
+        endInput.style.opacity = "0.5";
+        endInput.value = ""; // Очищаємо, бо ще не закінчилися
+    } else {
+        endInput.disabled = false;
+        endInput.style.opacity = "1";
+        
+        // Автоматична підказка: якщо вибрали "не тривають", 
+        // пропонуємо дату через 4 дні від початку
+        const startVal = document.getElementById('start-date').value;
+        if (startVal) {
+            let suggestEnd = new Date(startVal);
+            suggestEnd.setDate(suggestEnd.getDate() + 4);
+            endInput.value = suggestEnd.toISOString().split('T')[0];
+        }
     }
 }
 
