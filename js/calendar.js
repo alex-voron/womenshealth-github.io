@@ -1,30 +1,48 @@
+// js/calendar.js
+
 function toggleEndInput(cb) {
     const endInput = document.getElementById('end-date');
-    endInput.disabled = cb.checked;
-    if(cb.checked) endInput.value = "";
+    if (endInput) {
+        endInput.disabled = cb.checked;
+        if(cb.checked) endInput.value = "";
+    }
 }
 
 function saveCycle() {
-    localStorage.setItem('user_start_date', document.getElementById('start-date').value);
-    localStorage.setItem('user_end_date', document.getElementById('end-date').value);
-    localStorage.setItem('is_active', document.getElementById('still-going').checked);
-    showPage('main-app');
+    const startInput = document.getElementById('start-date');
+    const endInput = document.getElementById('end-date');
+    const stillGoingInput = document.getElementById('still-going');
+
+    if (startInput && startInput.value) {
+        localStorage.setItem('user_start_date', startInput.value);
+        if (endInput) localStorage.setItem('user_end_date', endInput.value);
+        if (stillGoingInput) localStorage.setItem('is_active', stillGoingInput.checked);
+        
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+        showPage('main-app');
+    } else {
+        tg.showAlert("Будь ласка, вкажіть дату початку циклу 🩸");
+    }
 }
 
+// ГОЛОВНА ФУНКЦІЯ МАЛЮВАННЯ ГЛАВНОГО ЕКРАНУ
 function renderData() {
     const start = localStorage.getItem('user_start_date');
-    if (!start) return;
-
-    // Отримуємо елементи
     const dayNumEl = document.getElementById('day-num');
     const daysLeftEl = document.getElementById('days-left');
     const phaseEl = document.getElementById('phase-name');
     const progressEl = document.getElementById('progress-bar');
     const reminder = document.getElementById('end-reminder');
 
-    // КРИТИЧНО: Перевіряємо, чи всі елементи існують на сторінці
-    if (!dayNumEl || !daysLeftEl || !phaseEl || !progressEl) {
-        console.error("Деякі елементи інтерфейсу не знайдено!");
+    // ЗАХИСТ: Якщо елементів немає на екрані — виходимо
+    if (!dayNumEl || !daysLeftEl || !phaseEl || !progressEl) return;
+
+    if (!start) {
+        // Даних немає — показуємо нагадування про налаштування
+        dayNumEl.innerText = "?";
+        phaseEl.innerText = "Налаштуйте цикл";
+        daysLeftEl.innerText = "в профілі";
+        progressEl.style.strokeDasharray = "0 440";
         return;
     }
 
@@ -32,48 +50,86 @@ function renderData() {
     const today = new Date();
     today.setHours(0,0,0,0);
     
-    const cycleLen = 28; 
+    // ПАРАМЕТРИ З ПРОФІЛЮ (Flo-style)
+    const cycleLen = parseInt(localStorage.getItem('cycle_len') || 28); 
     const periodLen = parseInt(localStorage.getItem('period_len') || 5); 
     const isActive = localStorage.getItem('is_active') === 'true';
     
-    const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
-    
-    dayNumEl.innerText = diffDays;
+    // Математика: Поточний день циклу
+    const diffTime = today - startDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const currentDay = diffDays + 1; // 1-й день циклу
 
-    let isBleeding = (isActive || diffDays <= periodLen);
+    // ВІДОБРАЖЕННЯ
+    dayNumEl.innerText = currentDay;
 
-    if (isBleeding) {
-        const left = periodLen - diffDays + 1;
+    // ЛОГІКА СТАНІВ (Flo)
+    let isBleeding = (isActive || currentDay <= periodLen);
+
+    if (currentDay > cycleLen) {
+        // СТАН С: ЗАЙДЕРЖКА (Сірий колір Flo)
+        const delayDays = currentDay - cycleLen;
+        phaseEl.innerText = "Затримка 🐢";
+        phaseEl.style.color = "var(--flo-grey)";
+        daysLeftEl.innerText = `${delayDays} дн.`;
+        daysLeftEl.style.color = "var(--flo-grey)";
+        progressEl.style.stroke = "var(--flo-grey)";
+        progressEl.style.strokeDasharray = "440 440"; // Повне сіре коло
+        if (reminder) reminder.style.display = 'none';
+
+    } else if (isBleeding) {
+        // СТАН А: МІСЯЧНІ (Рожевий колір Flo)
+        const left = periodLen - currentDay + 1;
         phaseEl.innerText = "Менструальна фаза 🩸";
-        daysLeftEl.innerText = left > 0 ? `кінець за ${left} дн.` : "сьогодні кінець";
-        daysLeftEl.style.color = "var(--main-pink)";
+        phaseEl.style.color = "var(--flo-pink)";
+        daysLeftEl.innerText = left > 0 ? `кінець за ${left} дн.` : "сьогодні останній день";
+        daysLeftEl.style.color = "var(--flo-pink)";
         
-        // Математика прогресу для місячних
-        const progressValue = Math.min((diffDays / periodLen) * 440, 440);
+        // Математика прогресу
+        const progressValue = Math.min((currentDay / periodLen) * 440, 440);
         progressEl.style.strokeDasharray = `${progressValue} 440`;
-        progressEl.style.stroke = "var(--main-pink)";
+        progressEl.style.stroke = "var(--flo-pink)";
         
+        // Нагадування про затримку закінчення
         if (reminder) {
-            reminder.style.display = (isActive && diffDays > periodLen) ? 'block' : 'none';
+            reminder.style.display = (isActive && currentDay > periodLen) ? 'block' : 'none';
         }
     } else {
+        // СТАН Б: ОЧІКУВАННЯ / ОВУЛЯЦІЯ (Бірюзовий колір Flo)
         if (reminder) reminder.style.display = 'none';
         
-        const daysToNext = cycleLen - ((diffDays - 1) % cycleLen);
-        phaseEl.innerText = "Фолікулярна фаза";
+        // Дні до наступних (рахуємо відносно cycleLen)
+        const daysToNext = cycleLen - currentDay + 1;
+        
+        // Визначаємо фази
+        let phaseName = "Фолікулярна фаза";
+        let phaseColor = "var(--text-dark)";
+        
+        if (currentDay > 12 && currentDay <= 16) {
+            phaseName = "Овуляція ✨";
+            phaseColor = "var(--flo-teal)";
+        } else if (currentDay > 16) {
+            phaseName = "Лютеїнова фаза";
+            phaseColor = "#d35400"; // Помаранчевий
+        }
+        
+        phaseEl.innerText = phaseName;
+        phaseEl.style.color = phaseColor;
+        
         daysLeftEl.innerText = `до наступних: ${daysToNext} дн.`;
         daysLeftEl.style.color = "var(--water-blue)";
         
-        // Математика прогресу для циклу
-        const cycleDay = (diffDays - 1) % cycleLen;
-        const progressValue = (cycleDay / cycleLen) * 440;
+        // Математика прогресу циклу
+        const progressValue = (currentDay / cycleLen) * 440;
         progressEl.style.strokeDasharray = `${progressValue} 440`;
-        progressEl.style.stroke = "var(--water-blue)";
+        progressEl.style.stroke = "var(--flo-teal)"; // Загальний колір очікування
     }
 
-    // Викликаємо перевірку тільки якщо вона існує
-    if (typeof checkPredictionAccuracy === "function") {
-        checkPredictionAccuracy(); 
+    // --- ОНОВЛЮЄМО "СТОРІЗ ДНЯ" ---
+    if (typeof updateDailyStory === "function") {
+        updateDailyStory(currentDay);
+    } else {
+        console.error("Функцію updateDailyStory не знайдено в js/features.js!");
     }
 }
 
