@@ -6,124 +6,88 @@
     <title>Expert Women Health PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-pink: #ff85a2; --soft-pink: #fff1f3; --water-blue: #3498db; --text-dark: #4a4a4a; --bg: #fafafa; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text-dark); margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; }
-        
-        .page { display: none; animation: fadeIn 0.3s ease; }
+        :root { --main-pink: #ff85a2; --soft-pink: #fff1f3; --text-dark: #4a4a4a; --accent: #ff6b8d; }
+        body { font-family: 'Segoe UI', sans-serif; background: #fafafa; color: var(--text-dark); margin: 0; padding: 15px; }
+        .page { display: none; }
         .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .btn { background: var(--main-pink); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
-        .btn-outline { background: white; color: var(--main-pink); border: 1px solid var(--main-pink); }
-        
+        .btn { background: var(--main-pink); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
         .input-field { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
-
-        /* Progress Circle */
-        .circle-container { position: relative; width: 150px; height: 150px; margin: 0 auto 15px; }
-        .circle-bg { fill: none; stroke: var(--soft-pink); stroke-width: 10; }
-        .circle-progress { fill: none; stroke: var(--main-pink); stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dasharray 0.8s ease; }
-        .circle-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-
-        /* Symptoms */
-        .symptoms-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
-        .symptom-item { background: var(--soft-pink); border-radius: 12px; padding: 15px 5px; text-align: center; font-size: 24px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-        .symptom-item.active { border-color: var(--main-pink); background: white; box-shadow: 0 4px 10px rgba(255,133,162,0.2); }
-
-        /* Toast */
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 25px; border-radius: 25px; font-size: 14px; display: none; z-index: 1000; pointer-events: none; }
+        .notification { background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; display: none; }
         
-        .history-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        /* Прогрес */
+        .circle-container { position: relative; width: 140px; height: 140px; margin: 0 auto 15px; }
+        .circle-bg { fill: none; stroke: var(--soft-pink); stroke-width: 10; }
+        .circle-progress { fill: none; stroke: var(--main-pink); stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: 0.5s; }
+        .circle-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="toast">Збережено ✨</div>
-
     <div id="welcome-page" class="page active">
-        <div class="card" style="text-align: center; padding: 60px 20px; margin-top: 20px;">
-            <div style="font-size: 60px; margin-bottom: 20px;">🌸</div>
-            <h1 style="color: var(--main-pink); margin: 0;">Вітаю!</h1>
-            <p style="color: #666; line-height: 1.5;">Я твій персональний асистент. Давай зробимо твоє життя комфортнішим.</p>
-            <button class="btn" onclick="showPage('main-app')">Зайти в програмку ✨</button>
+        <div class="card" style="text-align: center; padding: 50px 20px;">
+            <h1>Вітаю! ✨</h1>
+            <p>Ваш розумний помічник готовий до роботи.</p>
+            <button class="btn" onclick="showPage('main-app')">Зайти в програмку</button>
         </div>
     </div>
 
     <div id="main-app" class="page">
+        <div id="end-reminder" class="notification">
+            ⚠️ <b>Схоже, ваші місячні закінчилися?</b><br>
+            Будь ласка, внесіть дату закінчення для точного прогнозу.
+            <button class="btn" style="padding: 8px; font-size: 12px; background: #666;" onclick="showPage('setup-cycle-page')">Внести дату</button>
+        </div>
+
         <div class="card">
-            <div id="no-data-msg" style="text-align: center; padding: 10px 0;">
-                <p style="color: #999;">Дані циклу не налаштовані</p>
-                <button class="btn" style="background: #95a5a6;" onclick="showPage('setup-cycle-page')">Налаштувати зараз</button>
-            </div>
-            
-            <div id="cycle-display" style="display: none;">
+            <div id="cycle-display">
                 <div class="circle-container">
-                    <svg width="150" height="150">
-                        <circle class="circle-bg" cx="75" cy="75" r="65"></circle>
-                        <circle id="progress-bar" class="circle-progress" cx="75" cy="75" r="65" stroke-dasharray="0 408"></circle>
+                    <svg width="140" height="140">
+                        <circle class="circle-bg" cx="70" cy="70" r="60"></circle>
+                        <circle id="progress-bar" class="circle-progress" cx="70" cy="70" r="60" stroke-dasharray="0 377"></circle>
                     </svg>
                     <div class="circle-text">
-                        <div id="day-num" style="font-size: 36px; font-weight: bold; color: var(--main-pink);">1</div>
-                        <div style="font-size: 11px; color: #888;">день циклу</div>
+                        <div id="day-num" style="font-size: 32px; font-weight: bold; color: var(--main-pink);">?</div>
+                        <div style="font-size: 10px;">день циклу</div>
                     </div>
                 </div>
-                <h3 id="phase-name" style="text-align: center; color: var(--main-pink); margin: 0;">Фолікулярна фаза</h3>
+                <h3 id="phase-name" style="text-align: center; color: var(--main-pink);">Завантаження...</h3>
             </div>
         </div>
 
-        <div class="card">
-            <button class="btn btn-outline" onclick="markStartedToday()">🩸 Місячні почалися сьогодні</button>
-        </div>
-
-        <div class="card">
-            <h4 style="margin: 0 0 10px 0;">Як ви почуваєтесь?</h4>
-            <div class="symptoms-grid">
-                <div class="symptom-item" onclick="toggleSymptom(this, 'energized')">⚡</div>
-                <div class="symptom-item" onclick="toggleSymptom(this, 'sad')">😔</div>
-                <div class="symptom-item" onclick="toggleSymptom(this, 'pain')">😫</div>
-                <div class="symptom-item" onclick="toggleSymptom(this, 'calm')">🧘</div>
-            </div>
-        </div>
-
-        <div class="card" style="border-left: 5px solid var(--main-pink); background: var(--soft-pink);">
-            <h4 style="margin:0;">🩺 Порада експерта</h4>
-            <p id="expert-advice" style="font-size: 14px; margin: 8px 0 0 0;">Завантаження...</p>
-        </div>
-
-        <button class="btn" style="background: #eee; color: #666;" onclick="showPage('profile-page')">👤 Мій Профіль</button>
+        <button class="btn" onclick="showPage('profile-page')">👤 Мій Профіль & Налаштування</button>
     </div>
 
     <div id="profile-page" class="page">
         <div class="card">
             <h3>👤 Особисті дані</h3>
-            <label>Ваше ім'я:</label>
-            <input type="text" id="user-name" class="input-field" placeholder="Олена">
-            <label>Вік:</label>
-            <input type="number" id="user-age" class="input-field" placeholder="25">
+            <label>Ім'я:</label>
+            <input type="text" id="user-name" class="input-field">
+            <label>Ваш вік:</label>
+            <input type="number" id="user-age" class="input-field">
+            <label>Тривалість кровотечі (днів):</label>
+            <input type="number" id="period-duration" class="input-field" value="5">
             <button class="btn" onclick="saveProfile()">Зберегти профіль</button>
         </div>
-
-        <div class="card">
-            <h4>📜 Історія циклів (log28)</h4>
-            <div id="history-list">
-                <p style="font-size: 12px; color: #999;">Історія поки порожня</p>
-            </div>
-        </div>
-
-        <div class="card">
-            <button class="btn" style="background: #95a5a6;" onclick="showPage('setup-cycle-page')">⚙️ Налаштування циклу</button>
-            <button class="btn" style="background: #ccc;" onclick="showPage('main-app')">Назад</button>
-        </div>
+        <button class="btn" style="background:#7f8c8d" onclick="showPage('setup-cycle-page')">⚙️ Налаштувати цикл</button>
+        <button class="btn" style="background:#ccc" onclick="showPage('main-app')">Назад</button>
     </div>
 
     <div id="setup-cycle-page" class="page">
         <div class="card">
-            <h3>🩸 Налаштування циклу</h3>
-            <label>Дата початку останніх місячних:</label>
+            <h3>🩸 Редагування циклу</h3>
+            <label>Початок:</label>
             <input type="date" id="start-date" class="input-field">
-            <button class="btn" onclick="saveCycle()">Зберегти дату</button>
-            <button class="btn" style="background: #ccc;" onclick="showPage('main-app')">Скасувати</button>
+            <label>Закінчення:</label>
+            <input type="date" id="end-date" class="input-field">
+            
+            <div style="margin: 15px 0;">
+                <input type="checkbox" id="still-going" onchange="toggleEndInput(this)"> 
+                <label for="still-going">Ще тривають ⏳</label>
+            </div>
+            
+            <button class="btn" onclick="saveCycle()">Зберегти дані</button>
+            <button class="btn" style="background:#ccc" onclick="showPage('main-app')">Скасувати</button>
         </div>
     </div>
 
@@ -135,115 +99,64 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             if (pageId === 'main-app') renderData();
-            if (pageId === 'profile-page') renderHistory();
         }
 
-        function showToast(text) {
-            const t = document.getElementById('toast');
-            t.innerText = text;
-            t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 2000);
-        }
-
-        function toggleSymptom(el, type) {
-            el.classList.toggle('active');
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            showToast("Дані оновлено ✨");
-            
-            // Взаємодія: якщо болить — змінюємо пораду
-            if (type === 'pain' && el.classList.contains('active')) {
-                document.getElementById('expert-advice').innerText = "🩺 Порада: При болю рекомендується тепле пиття та відпочинок. Якщо біль сильний — зверніться до лікаря.";
-            } else {
-                renderData(); // Повертаємо пораду фази
-            }
-        }
-
-        function markStartedToday() {
-            const today = new Date().toISOString().split('T')[0];
-            saveCycleToHistory(today);
-            localStorage.setItem('user_start_date', today);
-            showToast("Записано! Початок сьогодні 🩸");
-            renderData();
+        function toggleEndInput(cb) {
+            const endInput = document.getElementById('end-date');
+            endInput.disabled = cb.checked;
+            if(cb.checked) endInput.value = "";
         }
 
         function saveProfile() {
             localStorage.setItem('user_name', document.getElementById('user-name').value);
             localStorage.setItem('user_age', document.getElementById('user-age').value);
-            showToast("Профіль збережено ✅");
-            showPage('main-app');
+            localStorage.setItem('period_len', document.getElementById('period-duration').value || 5);
+            tg.showAlert("Профіль оновлено!");
         }
 
         function saveCycle() {
-            const val = document.getElementById('start-date').value;
-            if (val) {
-                saveCycleToHistory(val);
-                localStorage.setItem('user_start_date', val);
-                showToast("Дані циклу оновлено ✅");
-                showPage('main-app');
-            }
-        }
-
-        function saveCycleToHistory(startDate) {
-            let history = JSON.parse(localStorage.getItem('cycle_history') || '[]');
-            if (!history.includes(startDate)) {
-                history.unshift(startDate);
-                localStorage.setItem('cycle_history', JSON.stringify(history.slice(0, 5)));
-            }
-        }
-
-        function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('cycle_history') || '[]');
-            const container = document.getElementById('history-list');
-            if (history.length === 0) return;
-            
-            container.innerHTML = history.map(date => `
-                <div class="history-item">
-                    <span>🩸 Цикл почався</span>
-                    <b>${new Date(date).toLocaleDateString('uk-UA')}</b>
-                </div>
-            `).join('');
+            localStorage.setItem('user_start_date', document.getElementById('start-date').value);
+            localStorage.setItem('user_end_date', document.getElementById('end-date').value);
+            localStorage.setItem('is_active', document.getElementById('still-going').checked);
+            showPage('main-app');
         }
 
         function renderData() {
-            const startDate = localStorage.getItem('user_start_date');
-            if (!startDate) {
-                document.getElementById('no-data-msg').style.display = 'block';
-                document.getElementById('cycle-display').style.display = 'none';
-                return;
-            }
+            const start = localStorage.getItem('user_start_date');
+            if (!start) return;
 
-            document.getElementById('no-data-msg').style.display = 'none';
-            document.getElementById('cycle-display').style.display = 'block';
-
-            const start = new Date(startDate);
+            const startDate = new Date(start);
             const today = new Date();
             today.setHours(0,0,0,0);
-            const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24)) % 28;
+            
+            const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) % 28;
             const currentDay = diffDays + 1;
-
+            
             document.getElementById('day-num').innerText = currentDay;
-            document.getElementById('progress-bar').style.strokeDasharray = `${(currentDay / 28) * 408} 408`;
-            
-            const phases = ["Менструальна", "Фолікулярна", "Овуляція", "Лютеїнова"];
-            let phase = currentDay <= 5 ? phases[0] : currentDay <= 13 ? phases[1] : currentDay <= 16 ? phases[2] : phases[3];
+            document.getElementById('progress-bar').style.strokeDasharray = `${(currentDay / 28) * 377} 377`;
+
+            // Логіка нагадування
+            const isActive = localStorage.getItem('is_active') === 'true';
+            const expectedLen = parseInt(localStorage.getItem('period_len') || 5);
+            const reminder = document.getElementById('end-reminder');
+
+            if (isActive && currentDay > expectedLen) {
+                reminder.style.display = 'block';
+            } else {
+                reminder.style.display = 'none';
+            }
+
+            // Назва фази (спрощено)
+            let phase = currentDay <= 5 ? "Менструальна" : currentDay <= 13 ? "Фолікулярна" : currentDay <= 16 ? "Овуляція" : "Лютеїнова";
             document.getElementById('phase-name').innerText = phase + " фаза";
-            
-            const advice = {
-                "Менструальна": "Організм потребує заліза та спокою. Пийте більше теплої води.",
-                "Фолікулярна": "Ваш рівень енергії зростає. Чудовий час для спорту!",
-                "Овуляція": "Ви на піку активності. Можливе загострення емоцій.",
-                "Лютеїнова": "Зменште споживання солі, щоб уникнути набряків."
-            };
-            document.getElementById('expert-advice').innerText = advice[phase];
         }
 
-        // Завантаження профілю
-        document.getElementById('user-name').value = localStorage.getItem('user_name') || "";
-        document.getElementById('user-age').value = localStorage.getItem('user_age') || "";
-
-        if (localStorage.getItem('user_start_date')) {
-            showPage('main-app');
-        }
+        // Завантаження даних в поля при старті
+        window.onload = () => {
+            document.getElementById('user-name').value = localStorage.getItem('user_name') || "";
+            document.getElementById('period-duration').value = localStorage.getItem('period_len') || 5;
+            if (localStorage.getItem('user_start_date')) showPage('main-app');
+        };
     </script>
 </body>
 </html>
