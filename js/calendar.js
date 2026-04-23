@@ -31,7 +31,7 @@ function renderData() {
     const progressEl = document.getElementById('progress-bar');
     const reminder = document.getElementById('end-reminder');
 
-    dayNumEl.innerText = diffDays;
+    if (dayNumEl) dayNumEl.innerText = diffDays;
 
     let isBleeding = (isActive || diffDays <= periodLen);
 
@@ -48,37 +48,44 @@ function renderData() {
     } else {
         reminder.style.display = 'none';
         const daysToNext = cycleLen - ((diffDays - 1) % cycleLen);
-        phaseEl.innerText = "Фолікулярна фаза"; // Спрощено для тесту
+        phaseEl.innerText = "Фолікулярна фаза";
         daysLeftEl.innerText = `до наступних: ${daysToNext} дн.`;
         daysLeftEl.style.color = "var(--water-blue)";
         progressEl.style.strokeDasharray = `${(((diffDays - 1) % cycleLen) / cycleLen) * 440} 440`;
         progressEl.style.stroke = "var(--water-blue)";
     }
+
+    // --- КРИТИЧНО: ВИКЛИКАЄМО ПЕРЕВІРКУ ТУТ ---
+    checkPredictionAccuracy(); 
 }
+
 function checkPredictionAccuracy() {
+    const accuracyCard = document.getElementById('accuracy-check');
+    if (!accuracyCard) return;
+
     const lastStart = localStorage.getItem('user_start_date');
-    if (!lastStart) return;
+    if (!lastStart) {
+        accuracyCard.style.display = 'none';
+        return;
+    }
 
     const today = new Date();
     const startDate = new Date(lastStart);
-    
-    // Якщо сьогодні вже 1-й чи 2-й день циклу, запитуємо, чи підтверджує користувач дату
     const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
     
-    const accuracyCard = document.getElementById('accuracy-check');
-    
-    // Показуємо картку лише в перші 2 дні нового циклу
-    if (true) { // Це змусить блок показуватися завжди
-    accuracyCard.style.display = 'block';
-}
+    // Поки що залишаємо true для тесту, щоб ти побачив блок
+    if (true) { 
+        accuracyCard.style.display = 'block';
+    } else {
         accuracyCard.style.display = 'none';
     }
 }
 
 function confirmPrediction(isAccurate) {
     if (isAccurate) {
-        tg.showAlert("Чудово! Ваші прогнози залишаються точними. ✨");
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.showAlert("Чудово! Ваші прогнози залишаються точними. ✨");
+        }
         document.getElementById('accuracy-check').style.display = 'none';
-        // Тут можна додати запис у "рейтинг точності"
     }
 }
