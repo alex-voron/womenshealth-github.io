@@ -71,21 +71,28 @@
         <button class="btn btn-back" onclick="showPage('main-app')">Назад</button>
     </div>
 
-    <div id="setup-cycle-page" class="page">
-        <div class="card">
-            <h3>🩸 Редагування циклу</h3>
-            <label>Початок:</label>
-            <input type="date" id="start-date" class="input-field">
-            <label>Закінчення:</label>
-            <input type="date" id="end-date" class="input-field">
-            <div class="checkbox-group" style="margin: 15px 0;">
-                <input type="checkbox" id="still-going" onchange="toggleEndInput(this)"> 
-                <label for="still-going">Ще тривають ⏳</label>
+    <div class="card">
+    <h3>🩸 Редагування циклу</h3>
+    
+    <div class="date-range-picker">
+        <div class="date-input-group">
+            <label>Термін:</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="date" id="start-date" class="input-field" style="flex: 1;">
+                <span>—</span>
+                <input type="date" id="end-date" class="input-field" style="flex: 1;">
             </div>
-            <button class="btn" onclick="saveCycle()">Зберегти дані</button>
-            <button class="btn btn-back" onclick="showPage('main-app')">Скасувати</button>
         </div>
     </div>
+
+    <div class="checkbox-group" style="margin: 20px 0; padding: 10px; background: var(--soft-pink); border-radius: 12px;">
+        <input type="checkbox" id="still-going" onchange="toggleEndInput(this)"> 
+        <label for="still-going" style="font-weight: bold; color: var(--flo-pink);">Все ще тривають ⏳</label>
+    </div>
+    
+    <button class="btn" onclick="saveCycle()">Зберегти період</button>
+    <button class="btn btn-back" onclick="showPage('main-app')">Скасувати</button>
+</div>
 
     <script src="js/profile.js"></script>
     <script src="js/calendar.js"></script>
