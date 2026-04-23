@@ -68,9 +68,9 @@ function checkPredictionAccuracy() {
     const accuracyCard = document.getElementById('accuracy-check');
     
     // Показуємо картку лише в перші 2 дні нового циклу
-    if (diffDays >= 0 && diffDays <= 2) {
-        accuracyCard.style.display = 'block';
-    } else {
+    if (true) { // Це змусить блок показуватися завжди
+    accuracyCard.style.display = 'block';
+}
         accuracyCard.style.display = 'none';
     }
 }
