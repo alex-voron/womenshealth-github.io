@@ -1,16 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Expert Women Health PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --main-pink: #ff85a2; --soft-pink: #fff1f3; --text-dark: #4a4a4a; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #fafafa; color: var(--text-dark); margin: 0; padding: 15px; }
+        :root { 
+            --main-pink: #ff85a2; 
+            --soft-pink: #fff1f3; 
+            --water-blue: #3498db;
+            --text-dark: #4a4a4a; 
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #fafafa; color: var(--text-dark); margin: 0; padding: 15px; padding-bottom: 50px; }
         .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; }
         
-        /* Цикл */
+        /* Введення даних */
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-field { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
+        
+        /* Коло прогресу */
         .circle-container { position: relative; width: 160px; height: 160px; margin: 0 auto 20px; }
         .circle-bg { fill: none; stroke: var(--soft-pink); stroke-width: 10; }
         .circle-progress { fill: none; stroke: var(--main-pink); stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dasharray 0.5s; }
@@ -18,26 +27,36 @@
         
         /* Симптоми */
         .symptoms-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        .symptom-item { background: var(--soft-pink); border-radius: 12px; padding: 10px; font-size: 20px; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+        .symptom-item { background: var(--soft-pink); border-radius: 12px; padding: 10px; font-size: 20px; cursor: pointer; border: 2px solid transparent; transition: 0.2s; text-align: center; }
         .symptom-item.active { border-color: var(--main-pink); background: white; transform: scale(1.05); }
         .symptom-label { font-size: 10px; display: block; margin-top: 5px; }
 
-        /* Календар прогнозів */
-        .forecast { display: flex; justify-content: space-between; margin-top: 15px; font-size: 12px; }
-        .forecast-item { text-align: center; padding: 5px; }
-        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-bottom: 4px; }
+        /* Вода */
+        .water-bar-bg { background: #e0f0ff; height: 12px; border-radius: 6px; margin-top: 10px; overflow: hidden; }
+        .water-bar-fill { background: var(--water-blue); width: 0%; height: 100%; transition: 0.5s; }
 
-        .btn { background: var(--main-pink); color: white; border: none; padding: 14px; border-radius: 15px; width: 100%; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        .secondary-btn { background: none; color: var(--main-pink); border: 1px solid var(--main-pink); padding: 10px; border-radius: 12px; width: 100%; margin-top: 10px; }
+        .btn { background: var(--main-pink); color: white; border: none; padding: 14px; border-radius: 15px; width: 100%; font-weight: bold; font-size: 16px; margin-top: 10px; cursor: pointer; }
+        .water-btn { background: var(--water-blue); margin-top: 0; width: auto; padding: 8px 15px; }
+        .secondary-btn { background: none; color: #999; border: none; font-size: 12px; margin-top: 20px; text-decoration: underline; cursor: pointer; width: 100%; }
+        
+        h2, h4 { margin: 0 0 10px 0; }
     </style>
 </head>
 <body>
 
     <div id="setup-page" class="card">
-        <h2>Вітаємо, Експерте 🩺</h2>
-        <p>Встановіть дату початку останнього циклу:</p>
-        <input type="date" id="start-date" style="width:100%; padding:10px; margin-bottom:20px; border-radius:10px; border:1px solid #ddd;">
-        <button class="btn" onclick="initApp()">Почати аналіз</button>
+        <h2>Мій Профіль 🩺</h2>
+        <div class="input-group">
+            <label>🩸 Початок останніх місячних:</label>
+            <input type="date" id="start-date" class="input-field">
+            
+            <label>🏁 Закінчення останніх місячних:</label>
+            <input type="date" id="end-date" class="input-field">
+            
+            <label>⚖️ Вага (кг):</label>
+            <input type="number" id="user-weight" placeholder="Напр. 65" class="input-field">
+        </div>
+        <button class="btn" onclick="initApp()">Зберегти та Розрахувати</button>
     </div>
 
     <div id="main-app" style="display:none;">
@@ -45,24 +64,34 @@
             <div class="circle-container">
                 <svg width="160" height="160">
                     <circle class="circle-bg" cx="80" cy="80" r="70"></circle>
-                    <circle id="progress-bar" class="circle-progress" cx="80" cy="80" r="70" stroke-dasharray="440 440"></circle>
+                    <circle id="progress-bar" class="circle-progress" cx="80" cy="80" r="70" stroke-dasharray="0 440"></circle>
                 </svg>
                 <div class="circle-text">
                     <div id="day-num" style="font-size: 32px; font-weight: bold; color: var(--main-pink);">1</div>
                     <div style="font-size: 12px;">день циклу</div>
                 </div>
             </div>
-            <div id="phase-name" style="font-weight: bold; text-align: center; color: var(--main-pink);">Фолікулярна фаза</div>
+            <div id="phase-name" style="font-weight: bold; text-align: center; color: var(--main-pink); margin-bottom: 10px;">Фолікулярна фаза</div>
             
-            <div class="forecast">
-                <div class="forecast-item"><span class="dot" style="background:#ff85a2;"></span><br>Місячні<br><b id="p-date">--</b></div>
-                <div class="forecast-item"><span class="dot" style="background:#a285ff;"></span><br>Овуляція<br><b id="o-date">--</b></div>
-                <div class="forecast-item"><span class="dot" style="background:#85ffb8;"></span><br>Шанс<br><b id="f-chance">Високий</b></div>
+            <div style="display: flex; justify-content: space-around; font-size: 12px; border-top: 1px solid #eee; padding-top: 10px;">
+                <div style="text-align:center;">📅 Наступні:<br><b id="p-date">--</b></div>
+                <div style="text-align:center;">✨ Овуляція:<br><b id="o-date">--</b></div>
             </div>
         </div>
 
         <div class="card">
-            <h4 style="margin:0;">Як ви почуваєтесь сьогодні?</h4>
+            <h4 style="display: flex; justify-content: space-between;">
+                💧 Вода 
+                <button class="btn water-btn" onclick="addWater()">+ 250мл</button>
+            </h4>
+            <div id="water-count" style="font-size: 18px; font-weight: bold; color: var(--water-blue);">0 / 2.0L</div>
+            <div class="water-bar-bg">
+                <div id="water-progress" class="water-bar-fill"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4>Симптоми та Настрій</h4>
             <div class="symptoms-grid">
                 <div class="symptom-item" onclick="toggleSymptom(this, 'energized')">⚡<span class="symptom-label">Енергія</span></div>
                 <div class="symptom-item" onclick="toggleSymptom(this, 'sad')">😔<span class="symptom-label">Сум</span></div>
@@ -72,22 +101,31 @@
         </div>
 
         <div class="card" style="border-left: 5px solid var(--main-pink); background: var(--soft-pink);">
-            <h4 style="margin:0;">🩺 Аналітика лікарів</h4>
-            <p id="expert-advice" style="font-size: 14px; line-height: 1.5;">На основі вашої фази та симптомів, рекомендуємо...</p>
+            <h4>🩺 Аналітика Експертів</h4>
+            <p id="expert-advice" style="font-size: 14px; line-height: 1.5; margin: 0;">Завантаження персональних порад...</p>
         </div>
 
-        <button class="secondary-btn" onclick="resetApp()">Скинути дані</button>
+        <button class="secondary-btn" onclick="resetApp()">Скинути всі дані</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
+        let waterDrunk = parseInt(localStorage.getItem('water_today')) || 0;
+
         function initApp() {
-            const date = document.getElementById('start-date').value;
-            if (date) {
-                localStorage.setItem('user_start_date', date);
+            const start = document.getElementById('start-date').value;
+            const end = document.getElementById('end-date').value;
+            const weight = document.getElementById('user-weight').value;
+
+            if (start && end) {
+                localStorage.setItem('user_start_date', start);
+                localStorage.setItem('user_end_date', end);
+                localStorage.setItem('user_weight', weight);
                 renderData();
+            } else {
+                tg.showAlert("Будь ласка, вкажіть дати початку та закінчення.");
             }
         }
 
@@ -100,54 +138,76 @@
 
             const start = new Date(startDate);
             const today = new Date();
-            const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24)) % 28;
+            today.setHours(0,0,0,0);
+            
+            const diffTime = today - start;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) % 28;
             const currentDay = diffDays + 1;
 
-            // Оновлюємо прогрес-бар
+            // Оновлення прогресу
             const progress = (currentDay / 28) * 440;
             document.getElementById('progress-bar').style.strokeDasharray = `${progress} 440`;
             document.getElementById('day-num').innerText = currentDay;
 
-            // Логіка фаз та прогнозів
+            // Фази та поради
             let phase = "";
             let advice = "";
             if (currentDay <= 5) {
                 phase = "Менструальна фаза";
-                advice = "Медичний протокол: Рівень заліза може знижуватися. Рекомендується додати в раціон більше зелених овочів та відпочинку.";
+                advice = "Порада лікарів: Організм потребує відпочинку та заліза. Уникайте важких навантажень.";
             } else if (currentDay <= 13) {
                 phase = "Фолікулярна фаза";
-                advice = "Енергія зростає. Згідно з дослідженнями, це найкращий час для нових починань та інтенсивних тренувань.";
+                advice = "Енергія зростає! Згідно з протоколами, це найкращий час для навчання та спорту.";
             } else if (currentDay <= 16) {
-                phase = "Овуляція";
-                advice = "Пік фертильності. Можливе загострення почуттів. Пийте більше води та слідкуйте за температурою тіла.";
+                phase = "Фаза овуляції";
+                advice = "Пік фертильності. Можливе загострення емоцій. Пийте більше чистої води.";
             } else {
                 phase = "Лютеїнова фаза";
-                advice = "Підготовка до нового циклу. Рівень прогестерону високий. Порада лікарів: зменште цукор та кофеїн для легшого самопочуття.";
+                advice = "Підготовка до нового циклу. Порада нутриціолога: зменште сіль, щоб уникнути набряків.";
             }
 
             document.getElementById('phase-name').innerText = phase;
             document.getElementById('expert-advice').innerText = advice;
+
+            // Дати прогнозів
+            const nextP = new Date(start);
+            nextP.setDate(start.getDate() + 28);
+            document.getElementById('p-date').innerText = nextP.toLocaleDateString('uk-UA', {day:'numeric', month:'short'});
             
-            // Прогнози
-            const nextPeriod = new Date(start);
-            nextPeriod.setDate(start.getDate() + 28);
-            document.getElementById('p-date').innerText = nextPeriod.toLocaleDateString('uk-UA', {day:'numeric', month:'short'});
-            
-            const ovulation = new Date(start);
-            ovulation.setDate(start.getDate() + 14);
-            document.getElementById('o-date').innerText = ovulation.toLocaleDateString('uk-UA', {day:'numeric', month:'short'});
+            const nextO = new Date(start);
+            nextO.setDate(start.getDate() + 14);
+            document.getElementById('o-date').innerText = nextO.toLocaleDateString('uk-UA', {day:'numeric', month:'short'});
+
+            updateWaterUI();
         }
 
-        function toggleSymptom(el, name) {
+        function addWater() {
+            waterDrunk += 250;
+            localStorage.setItem('water_today', waterDrunk);
+            updateWaterUI();
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function updateWaterUI() {
+            const goal = 2000;
+            const percent = Math.min((waterDrunk / goal) * 100, 100);
+            document.getElementById('water-count').innerText = `${(waterDrunk/1000).toFixed(1)} / ${(goal/1000).toFixed(1)}L`;
+            document.getElementById('water-progress').style.width = percent + '%';
+        }
+
+        function toggleSymptom(el, type) {
             el.classList.toggle('active');
-            // Тут можна додати логіку, яка змінює пораду AI залежно від симптому!
+            if(tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
         }
 
         function resetApp() {
-            localStorage.removeItem('user_start_date');
-            location.reload();
+            if(confirm("Видалити всі дані?")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
 
+        // Автозапуск
         window.onload = renderData;
     </script>
 </body>
