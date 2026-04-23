@@ -107,3 +107,22 @@ function confirmPrediction(isAccurate) {
         document.getElementById('accuracy-check').style.display = 'none';
     }
 }
+function updateDailyStory(day) {
+    const storyEl = document.getElementById('story-text');
+    if (!storyEl) return;
+
+    let story = "";
+    if (day <= 5) {
+        story = "Рівень прогестерону низький. Це час для відпочинку. Твій організм оновлюється.";
+    } else if (day <= 12) {
+        story = "Естроген зростає. Ти відчуваєш приплив енергії та креативності. Гарний час для нових справ!";
+    } else if (day <= 16) {
+        story = "Період овуляції. Шанси на вагітність найвищі. Шкіра виглядає сяючою ✨";
+    } else if (day <= 28) {
+        story = "Обмін речовин прискорюється. Може з'явитися бажання з'їсти щось солодке. Будь ніжною до себе.";
+    } else {
+        story = "Затримка — це нормально при стресі, але якщо вона триває довго, варто зробити тест або звернутися до лікаря.";
+    }
+    
+    storyEl.innerText = story;
+}
