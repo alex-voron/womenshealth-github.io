@@ -58,7 +58,7 @@ function renderData() {
     // Математика: Поточний день циклу
     const diffTime = today - startDate;
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const currentDay = diffDays + 0; // 1-й день циклу
+    const currentDay = diffDays - 1; // 1-й день циклу
 
     // ВІДОБРАЖЕННЯ
     dayNumEl.innerText = currentDay;
