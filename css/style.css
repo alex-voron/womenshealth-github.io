@@ -1,0 +1,93 @@
+:root { 
+    --main-pink: #ff85a2; 
+    --soft-pink: #fff1f3; 
+    --text-dark: #4a4a4a; 
+    --water-blue: #3498db;
+}
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background: #fafafa; 
+    color: var(--text-dark); 
+    margin: 0; 
+    padding: 15px; 
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+.card { 
+    background: white; 
+    border-radius: 20px; 
+    padding: 20px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+    margin-bottom: 15px; 
+}
+
+.welcome-card { text-align: center; padding: 50px 20px; }
+
+.btn { 
+    background: var(--main-pink); 
+    color: white; 
+    border: none; 
+    padding: 15px; 
+    border-radius: 15px; 
+    width: 100%; 
+    font-weight: bold; 
+    font-size: 16px; 
+    cursor: pointer; 
+    margin-top: 10px; 
+}
+
+.btn-secondary { background: #7f8c8d; }
+.btn-back { background: #ccc; }
+.btn-small { padding: 8px; font-size: 12px; background: #666; }
+
+.input-field { 
+    width: 100%; 
+    padding: 12px; 
+    margin: 8px 0; 
+    border-radius: 10px; 
+    border: 1px solid #ddd; 
+    box-sizing: border-box; 
+    font-size: 16px; 
+}
+
+.notification { 
+    background: #fff3cd; 
+    border-left: 5px solid #ffc107; 
+    padding: 15px; 
+    border-radius: 10px; 
+    margin-bottom: 15px; 
+    font-size: 14px; 
+    display: none; 
+}
+
+/* Прогрес бар */
+.circle-container { position: relative; width: 160px; height: 160px; margin: 0 auto 15px; }
+.circle-bg { fill: none; stroke: var(--soft-pink); stroke-width: 10; }
+.circle-progress { 
+    fill: none; 
+    stroke: var(--main-pink); 
+    stroke-width: 10; 
+    stroke-linecap: round; 
+    transform: rotate(-90deg); 
+    transform-origin: 50% 50%; 
+    transition: 0.5s; 
+}
+
+.circle-text { 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    text-align: center; 
+    width: 100%; 
+}
+
+#day-num { font-size: 36px; font-weight: bold; color: var(--main-pink); }
+.label { font-size: 11px; color: #888; }
+#days-left { font-size: 12px; font-weight: bold; margin-top: 5px; }
+#phase-name { text-align: center; color: var(--main-pink); margin-top: 10px; }
+
+.checkbox-group { margin: 15px 0; display: flex; align-items: center; gap: 10px; }
