@@ -122,34 +122,70 @@
         }
 
         function renderData() {
-            const start = localStorage.getItem('user_start_date');
-            if (!start) return;
+    const start = localStorage.getItem('user_start_date');
+    if (!start) return;
 
-            const startDate = new Date(start);
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            
-            const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) % 28;
-            const currentDay = diffDays + 1;
-            
-            document.getElementById('day-num').innerText = currentDay;
-            document.getElementById('progress-bar').style.strokeDasharray = `${(currentDay / 28) * 377} 377`;
+    const startDate = new Date(start);
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    const cycleLen = 28; // Загальний цикл
+    const periodLen = parseInt(localStorage.getItem('period_len') || 5); // Тривалість з профілю
+    const endDateStr = localStorage.getItem('user_end_date');
+    
+    // Поточний день циклу
+    const diffTime = today - startDate;
+    const currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    
+    // Логіка відображення в кружечку
+    const dayNumEl = document.getElementById('day-num');
+    const daysLeftEl = document.getElementById('days-left');
+    const phaseEl = document.getElementById('phase-name');
+    const progressEl = document.getElementById('progress-bar');
 
-            // Логіка нагадування
-            const isActive = localStorage.getItem('is_active') === 'true';
-            const expectedLen = parseInt(localStorage.getItem('period_len') || 5);
-            const reminder = document.getElementById('end-reminder');
+    dayNumEl.innerText = currentDay;
 
-            if (isActive && currentDay > expectedLen) {
-                reminder.style.display = 'block';
-            } else {
-                reminder.style.display = 'none';
-            }
+    // Визначаємо, чи зараз ще триває кровотеча
+    // Пріоритет 1: Чи вказана дата закінчення вручну?
+    // Пріоритет 2: Чи ми ще в межах periodLen?
+    let isBleeding = false;
+    if (endDateStr) {
+        const endDate = new Date(endDateStr);
+        if (today <= endDate) isBleeding = true;
+    } else if (currentDay <= periodLen) {
+        isBleeding = true;
+    }
 
-            // Назва фази (спрощено)
-            let phase = currentDay <= 5 ? "Менструальна" : currentDay <= 13 ? "Фолікулярна" : currentDay <= 16 ? "Овуляція" : "Лютеїнова";
-            document.getElementById('phase-name').innerText = phase + " фаза";
-        }
+    if (isBleeding) {
+        // СТАН А: Тривають місячні
+        const daysToPeriodEnd = periodLen - currentDay + 1;
+        phaseEl.innerText = "Менструальна фаза 🩸";
+        daysLeftEl.innerText = daysToPeriodEnd > 0 ? `кінець за ${daysToPeriodEnd} дн.` : "сьогодні останній день";
+        daysLeftEl.style.color = "var(--main-pink)";
+        
+        // Прогрес показуємо відносно тривалості кровотечі
+        const bleedProgress = (currentDay / periodLen) * 377;
+        progressEl.style.strokeDasharray = `${bleedProgress} 377`;
+        progressEl.style.stroke = "var(--main-pink)";
+    } else {
+        // СТАН Б: Очікування наступних
+        const daysToNext = cycleLen - (currentDay % cycleLen);
+        
+        // Визначаємо фази для напису
+        let phaseName = "Фолікулярна фаза";
+        if (currentDay > 13 && currentDay <= 16) phaseName = "Овуляція ✨";
+        if (currentDay > 16) phaseName = "Лютеїнова фаза";
+        
+        phaseEl.innerText = phaseName;
+        daysLeftEl.innerText = `до наступних: ${daysToNext} дн.`;
+        daysLeftEl.style.color = "var(--water-blue)"; // Змінимо колір для контрасту
+        
+        // Прогрес загального циклу
+        const cycleProgress = ((currentDay % cycleLen) / cycleLen) * 377;
+        progressEl.style.strokeDasharray = `${cycleProgress} 377`;
+        progressEl.style.stroke = "var(--water-blue)";
+    }
+}
 
         // Завантаження даних в поля при старті
         window.onload = () => {
