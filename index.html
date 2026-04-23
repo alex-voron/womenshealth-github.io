@@ -7,43 +7,47 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --main-pink: #ff85a2; --soft-pink: #fff1f3; --water-blue: #3498db; --text-dark: #4a4a4a; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #fafafa; color: var(--text-dark); margin: 0; padding: 15px; }
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #fafafa; color: var(--text-dark); margin: 0; padding: 15px; -webkit-user-select: none; user-select: none; }
         
         /* Екрани */
-        .page { display: none; }
-        .page.active { display: block; }
+        .page { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .page.active { display: block; opacity: 1; }
 
-        /* Стилі кнопок та вводу */
-        .btn { background: var(--main-pink); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .input-field { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        /* Картки та Елементи */
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .btn { background: var(--main-pink); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: background 0.2s; }
+        .btn:active { background: #ff6b8d; }
+        .input-field { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
         
-        /* Прогрес та іконки */
+        /* Прогрес бар */
         .circle-container { position: relative; width: 160px; height: 160px; margin: 0 auto 20px; }
         .circle-bg { fill: none; stroke: var(--soft-pink); stroke-width: 10; }
-        .circle-progress { fill: none; stroke: var(--main-pink); stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; }
+        .circle-progress { fill: none; stroke: var(--main-pink); stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dasharray 0.3s; }
         .circle-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
 
+        /* Симптоми */
         .symptoms-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .symptom-item { background: var(--soft-pink); border-radius: 12px; padding: 10px; text-align: center; font-size: 20px; cursor: pointer; }
-        .symptom-item.active { background: var(--main-pink); color: white; }
+        .symptom-item { background: var(--soft-pink); border-radius: 12px; padding: 15px 10px; text-align: center; font-size: 24px; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
+        .symptom-item.active { background: white; border-color: var(--main-pink); transform: scale(1.05); }
     </style>
 </head>
 <body>
 
     <div id="welcome-page" class="page active">
-        <div class="card" style="text-align: center; padding: 40px 20px;">
-            <h1 style="color: var(--main-pink);">Вітаю! ✨</h1>
-            <p>Я твій персональний асистент. Допоможу стежити за здоров'ям та надаватиму поради від експертів.</p>
-            <button class="btn" onclick="showPage('main-app')">Зайти в програмку</button>
+        <div class="card" style="text-align: center; padding: 50px 20px; margin-top: 30px;">
+            <div style="font-size: 60px; margin-bottom: 20px;">🌸</div>
+            <h1 style="color: var(--main-pink); margin: 0 0 15px 0;">Вітаю!</h1>
+            <p style="line-height: 1.6; color: #666; margin-bottom: 30px;">Я твій персональний асистент здоров'я. Допоможу стежити за циклом, водним балансом та надатиму поради від експертів.</p>
+            <button class="btn" onclick="showPage('main-app')">Почати роботу ✨</button>
         </div>
     </div>
 
     <div id="main-app" class="page">
         <div class="card">
-            <div id="no-data-msg">
-                <p style="text-align: center; color: #999;">Дані про цикл ще не налаштовані</p>
-                <button class="btn" style="background: #666;" onclick="showPage('setup-page')">⚙️ Налаштувати зараз</button>
+            <div id="no-data-msg" style="text-align: center; padding: 20px 0;">
+                <div style="font-size: 40px; margin-bottom: 10px;">⚙️</div>
+                <p style="color: #999; margin-bottom: 15px;">Дані про цикл ще не налаштовані</p>
+                <button class="btn" style="background: #7f8c8d; font-size: 14px; padding: 10px;" onclick="showPage('setup-page')">Налаштувати зараз</button>
             </div>
 
             <div id="cycle-display" style="display: none;">
@@ -53,21 +57,21 @@
                         <circle id="progress-bar" class="circle-progress" cx="80" cy="80" r="70" stroke-dasharray="0 440"></circle>
                     </svg>
                     <div class="circle-text">
-                        <div id="day-num" style="font-size: 32px; font-weight: bold; color: var(--main-pink);">?</div>
-                        <div style="font-size: 12px;">день циклу</div>
+                        <div id="day-num" style="font-size: 36px; font-weight: bold; color: var(--main-pink);">?</div>
+                        <div style="font-size: 12px; color: #888;">день циклу</div>
                     </div>
                 </div>
-                <h3 id="phase-name" style="text-align: center; color: var(--main-pink);">---</h3>
+                <h3 id="phase-name" style="text-align: center; color: var(--main-pink); margin: 0;">---</h3>
             </div>
         </div>
 
         <div class="card">
-            <h4>💧 Вода <span id="water-val" style="color: var(--water-blue); float: right;">0.0L</span></h4>
-            <button class="btn" style="background: var(--water-blue); margin: 0;" onclick="addWater()">+ Додати склянку</button>
+            <h4 style="margin: 0 0 10px 0; display: flex; justify-content: space-between;">💧 Вода <span id="water-val" style="color: var(--water-blue);">0.0L</span></h4>
+            <button class="btn" style="background: var(--water-blue); margin: 0; padding: 10px;" onclick="addWater()">+ Додати склянку</button>
         </div>
 
         <div class="card">
-            <h4>Симптоми</h4>
+            <h4 style="margin: 0 0 10px 0;">Як почуваєтесь?</h4>
             <div class="symptoms-grid">
                 <div class="symptom-item" onclick="this.classList.toggle('active')">⚡</div>
                 <div class="symptom-item" onclick="this.classList.toggle('active')">😔</div>
@@ -76,34 +80,33 @@
             </div>
         </div>
 
-        <button class="btn" style="background: none; color: #999; text-decoration: underline;" onclick="showPage('setup-page')">Налаштування профілю</button>
+        <button class="btn" style="background: none; color: #bbb; text-decoration: underline; font-size: 12px; margin-top: 20px;" onclick="showPage('setup-page')">⚙️ Налаштування профілю</button>
     </div>
 
     <div id="setup-page" class="page">
         <div class="card">
-            <h3>⚙️ Налаштування</h3>
-            <label>🩸 Коли почалися останні місячні?</label>
+            <h3 style="margin-top: 0;">⚙️ Налаштування</h3>
+            
+            <label style="font-weight: bold; font-size: 14px;">🩸 Коли почалися останні місячні?</label>
             <input type="date" id="start-date" class="input-field">
             
-            <div style="margin: 15px 0;">
-                <input type="checkbox" id="no-date" onchange="document.getElementById('start-date').disabled = this.checked"> 
-                <label>Не пам'ятаю / Почати відлік сьогодні</label>
+            <div style="margin: 10px 0 20px 0; background: #f9f9f9; padding: 10px; border-radius: 10px; border: 1px solid #eee;">
+                <input type="checkbox" id="no-date" onchange="toggleDateInput(this)"> 
+                <label for="no-date" style="font-size: 14px; margin-left: 5px;">Не пам'ятаю / Почати відлік сьогодні</label>
             </div>
 
-            <label>🏁 Дата закінчення (якщо вже пройшли):</label>
-            <input type="date" id="end-date" class="input-field">
-
-            <label>⚖️ Ваша вага (кг):</label>
-            <input type="number" id="user-weight" class="input-field" placeholder="65">
+            <label style="font-weight: bold; font-size: 14px;">⚖️ Ваша вага (кг):</label>
+            <input type="number" id="user-weight" class="input-field" placeholder="Напр. 65">
 
             <button class="btn" onclick="saveSettings()">Зберегти зміни</button>
-            <button class="btn" style="background: #ccc;" onclick="showPage('main-app')">Скасувати</button>
+            <button class="btn" style="background: #bdc3c7;" onclick="showPage('main-app')">Скасувати</button>
         </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -111,15 +114,25 @@
             if (pageId === 'main-app') renderData();
         }
 
+        function toggleDateInput(checkbox) {
+            const dateInput = document.getElementById('start-date');
+            dateInput.disabled = checkbox.checked;
+            dateInput.style.opacity = checkbox.checked ? "0.5" : "1";
+        }
+
         function saveSettings() {
             let start = document.getElementById('start-date').value;
-            if (document.getElementById('no-date').checked) {
-                start = new Date().toISOString().split('T')[0]; // Сьогодні
+            const weight = document.getElementById('user-weight').value;
+            const noDateChecked = document.getElementById('no-date').checked;
+
+            if (noDateChecked) {
+                start = new Date().toISOString().split('T')[0]; // Беремо сьогодні
             }
             
             if (start) {
                 localStorage.setItem('user_start_date', start);
-                localStorage.setItem('user_weight', document.getElementById('user-weight').value);
+                if(weight) localStorage.setItem('user_weight', weight);
+                if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 showPage('main-app');
             } else {
                 tg.showAlert("Будь ласка, оберіть дату або натисніть 'Не пам'ятаю'");
@@ -138,11 +151,17 @@
             document.getElementById('cycle-display').style.display = 'block';
 
             const start = new Date(startDate);
-            const diffDays = Math.floor((new Date() - start) / (1000 * 60 * 60 * 24)) % 28;
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24)) % 28;
             const currentDay = diffDays + 1;
 
             document.getElementById('day-num').innerText = currentDay;
-            document.getElementById('progress-bar').style.strokeDasharray = `${(currentDay / 28) * 440} 440`;
+            
+            // Оновлення прогрес-бару
+            const progress = (currentDay / 28) * 440;
+            document.getElementById('progress-bar').style.strokeDasharray = `${progress} 440`;
             
             const phases = ["Менструальна", "Фолікулярна", "Овуляція", "Лютеїнова"];
             let phase = currentDay <= 5 ? phases[0] : currentDay <= 13 ? phases[1] : currentDay <= 16 ? phases[2] : phases[3];
@@ -156,9 +175,12 @@
             if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
-        // Перевірка при старті: якщо дані є — вхід одразу на головну, якщо ні — на вітальну
+        // ПЕРЕВІРКА ПРИ СТАРТІ
+        // Якщо дані є — вхід одразу на головну, якщо ні — на вітальну сторінку
         if (localStorage.getItem('user_start_date')) {
             showPage('main-app');
+        } else {
+            showPage('welcome-page');
         }
     </script>
 </body>
