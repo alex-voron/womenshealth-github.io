@@ -114,11 +114,21 @@
             if(cb.checked) endInput.value = "";
         }
 
+        // --- ФУНКЦІЯ ЗБЕРЕЖЕННЯ ПРОФІЛЮ ---
         function saveProfile() {
-            localStorage.setItem('user_name', document.getElementById('user-name').value);
-            localStorage.setItem('user_age', document.getElementById('user-age').value);
-            localStorage.setItem('period_len', document.getElementById('period-duration').value || 5);
-            tg.showAlert("Профіль оновлено!");
+            const name = document.getElementById('user-name').value;
+            const age = document.getElementById('user-age').value;
+            const pLen = document.getElementById('period-duration').value;
+
+            // Зберігаємо кожен пункт окремо
+            localStorage.setItem('user_name', name);
+            localStorage.setItem('user_age', age);
+            localStorage.setItem('period_len', pLen || 5);
+
+            // Зворотний зв'язок для користувача
+            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            tg.showAlert("Профіль оновлено! ✅");
+            
             showPage('main-app');
         }
 
@@ -126,6 +136,8 @@
             localStorage.setItem('user_start_date', document.getElementById('start-date').value);
             localStorage.setItem('user_end_date', document.getElementById('end-date').value);
             localStorage.setItem('is_active', document.getElementById('still-going').checked);
+            
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             showPage('main-app');
         }
 
@@ -153,7 +165,6 @@
 
             dayNumEl.innerText = currentDay;
 
-            // Визначаємо, чи зараз ще триває кровотеча
             let isBleeding = false;
             if (isActive) {
                 isBleeding = true;
@@ -165,7 +176,6 @@
             }
 
             if (isBleeding) {
-                // СТАН А: Місячні тривають
                 const daysToPeriodEnd = periodLen - currentDay + 1;
                 phaseEl.innerText = "Менструальна фаза 🩸";
                 daysLeftEl.innerText = daysToPeriodEnd > 0 ? `кінець за ${daysToPeriodEnd} дн.` : "закінчуються сьогодні";
@@ -175,38 +185,45 @@
                 progressEl.style.strokeDasharray = `${bleedProgress} 440`;
                 progressEl.style.stroke = "var(--main-pink)";
 
-                // Нагадування якщо затримались
                 if (isActive && currentDay > periodLen) {
                     reminder.style.display = 'block';
                 } else {
                     reminder.style.display = 'none';
                 }
             } else {
-                // СТАН Б: Очікування наступних
                 reminder.style.display = 'none';
                 const daysToNext = cycleLen - ((currentDay - 1) % cycleLen);
                 
                 let phaseName = "Фолікулярна фаза";
-                if (currentDay % cycleLen > 13 && currentDay % cycleLen <= 16) phaseName = "Овуляція ✨";
-                else if (currentDay % cycleLen > 16 || currentDay % cycleLen == 0) phaseName = "Лютеїнова фаза";
+                let dayInCycle = (currentDay - 1) % cycleLen;
+                if (dayInCycle > 13 && dayInCycle <= 16) phaseName = "Овуляція ✨";
+                else if (dayInCycle > 16 || dayInCycle == 0) phaseName = "Лютеїнова фаза";
                 
                 phaseEl.innerText = phaseName;
                 daysLeftEl.innerText = `до наступних: ${daysToNext} дн.`;
                 daysLeftEl.style.color = "var(--water-blue)";
                 
-                const cycleProgress = (((currentDay - 1) % cycleLen) / cycleLen) * 440;
+                const cycleProgress = (dayInCycle / cycleLen) * 440;
                 progressEl.style.strokeDasharray = `${cycleProgress} 440`;
                 progressEl.style.stroke = "var(--water-blue)";
             }
         }
 
+        // --- ЗАВАНТАЖЕННЯ ДАНИХ ПРИ ЗАПУСКУ ---
         window.onload = () => {
+            // Підтягуємо ім'я
             const savedName = localStorage.getItem('user_name');
             if (savedName) document.getElementById('user-name').value = savedName;
             
+            // Підтягуємо вік
+            const savedAge = localStorage.getItem('user_age');
+            if (savedAge) document.getElementById('user-age').value = savedAge;
+
+            // Підтягуємо тривалість
             const savedLen = localStorage.getItem('period_len');
             if (savedLen) document.getElementById('period-duration').value = savedLen;
 
+            // Якщо дата циклу вже є — показуємо головний екран
             if (localStorage.getItem('user_start_date')) {
                 showPage('main-app');
             }
