@@ -15,6 +15,19 @@ function renderData() {
     const start = localStorage.getItem('user_start_date');
     if (!start) return;
 
+    // Отримуємо елементи
+    const dayNumEl = document.getElementById('day-num');
+    const daysLeftEl = document.getElementById('days-left');
+    const phaseEl = document.getElementById('phase-name');
+    const progressEl = document.getElementById('progress-bar');
+    const reminder = document.getElementById('end-reminder');
+
+    // КРИТИЧНО: Перевіряємо, чи всі елементи існують на сторінці
+    if (!dayNumEl || !daysLeftEl || !phaseEl || !progressEl) {
+        console.error("Деякі елементи інтерфейсу не знайдено!");
+        return;
+    }
+
     const startDate = new Date(start);
     const today = new Date();
     today.setHours(0,0,0,0);
@@ -25,13 +38,7 @@ function renderData() {
     
     const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
     
-    const dayNumEl = document.getElementById('day-num');
-    const daysLeftEl = document.getElementById('days-left');
-    const phaseEl = document.getElementById('phase-name');
-    const progressEl = document.getElementById('progress-bar');
-    const reminder = document.getElementById('end-reminder');
-
-    if (dayNumEl) dayNumEl.innerText = diffDays;
+    dayNumEl.innerText = diffDays;
 
     let isBleeding = (isActive || diffDays <= periodLen);
 
@@ -40,23 +47,34 @@ function renderData() {
         phaseEl.innerText = "Менструальна фаза 🩸";
         daysLeftEl.innerText = left > 0 ? `кінець за ${left} дн.` : "сьогодні кінець";
         daysLeftEl.style.color = "var(--main-pink)";
-        progressEl.style.strokeDasharray = `${(diffDays / periodLen) * 440} 440`;
+        
+        // Математика прогресу для місячних
+        const progressValue = Math.min((diffDays / periodLen) * 440, 440);
+        progressEl.style.strokeDasharray = `${progressValue} 440`;
         progressEl.style.stroke = "var(--main-pink)";
         
-        if (isActive && diffDays > periodLen) reminder.style.display = 'block';
-        else reminder.style.display = 'none';
+        if (reminder) {
+            reminder.style.display = (isActive && diffDays > periodLen) ? 'block' : 'none';
+        }
     } else {
-        reminder.style.display = 'none';
+        if (reminder) reminder.style.display = 'none';
+        
         const daysToNext = cycleLen - ((diffDays - 1) % cycleLen);
         phaseEl.innerText = "Фолікулярна фаза";
         daysLeftEl.innerText = `до наступних: ${daysToNext} дн.`;
         daysLeftEl.style.color = "var(--water-blue)";
-        progressEl.style.strokeDasharray = `${(((diffDays - 1) % cycleLen) / cycleLen) * 440} 440`;
+        
+        // Математика прогресу для циклу
+        const cycleDay = (diffDays - 1) % cycleLen;
+        const progressValue = (cycleDay / cycleLen) * 440;
+        progressEl.style.strokeDasharray = `${progressValue} 440`;
         progressEl.style.stroke = "var(--water-blue)";
     }
 
-    // --- КРИТИЧНО: ВИКЛИКАЄМО ПЕРЕВІРКУ ТУТ ---
-    checkPredictionAccuracy(); 
+    // Викликаємо перевірку тільки якщо вона існує
+    if (typeof checkPredictionAccuracy === "function") {
+        checkPredictionAccuracy(); 
+    }
 }
 
 function checkPredictionAccuracy() {
