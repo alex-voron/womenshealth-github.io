@@ -55,3 +55,30 @@ function renderData() {
         progressEl.style.stroke = "var(--water-blue)";
     }
 }
+function checkPredictionAccuracy() {
+    const lastStart = localStorage.getItem('user_start_date');
+    if (!lastStart) return;
+
+    const today = new Date();
+    const startDate = new Date(lastStart);
+    
+    // Якщо сьогодні вже 1-й чи 2-й день циклу, запитуємо, чи підтверджує користувач дату
+    const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+    
+    const accuracyCard = document.getElementById('accuracy-check');
+    
+    // Показуємо картку лише в перші 2 дні нового циклу
+    if (diffDays >= 0 && diffDays <= 2) {
+        accuracyCard.style.display = 'block';
+    } else {
+        accuracyCard.style.display = 'none';
+    }
+}
+
+function confirmPrediction(isAccurate) {
+    if (isAccurate) {
+        tg.showAlert("Чудово! Ваші прогнози залишаються точними. ✨");
+        document.getElementById('accuracy-check').style.display = 'none';
+        // Тут можна додати запис у "рейтинг точності"
+    }
+}
