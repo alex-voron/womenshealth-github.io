@@ -79,10 +79,18 @@ function renderData() {
 
     } else if (isBleeding) {
         // СТАН А: МІСЯЧНІ (Рожевий колір Flo)
-        const left = periodLen - currentDay + 1;
+        // Рахуємо скільки ПОВНИХ днів залишилося після сьогодні
+        const left = periodLen - currentDay; 
+        
         phaseEl.innerText = "Менструальна фаза 🩸";
         phaseEl.style.color = "var(--flo-pink)";
-        daysLeftEl.innerText = left > 0 ? `кінець за ${left} дн.` : "сьогодні останній день";
+        
+        if (left > 0) {
+            daysLeftEl.innerText = `залишилося ${left} дн.`;
+        } else {
+            daysLeftEl.innerText = "останній день";
+        }
+        
         daysLeftEl.style.color = "var(--flo-pink)";
         
         // Математика прогресу
