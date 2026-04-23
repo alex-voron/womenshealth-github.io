@@ -4,62 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Expert Women Health PRO</title>
+    <link rel="stylesheet" href="css/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { 
-            --main-pink: #ff85a2; 
-            --soft-pink: #fff1f3; 
-            --text-dark: #4a4a4a; 
-            --accent: #ff6b8d;
-            --water-blue: #3498db; /* Додано змінну кольору */
-        }
-        body { font-family: 'Segoe UI', sans-serif; background: #fafafa; color: var(--text-dark); margin: 0; padding: 15px; }
-        .page { display: none; }
-        .page.active { display: block; }
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .btn { background: var(--main-pink); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .input-field { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 16px; }
-        .notification { background: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; display: none; }
-        
-        /* Прогрес */
-        .circle-container { position: relative; width: 160px; height: 160px; margin: 0 auto 15px; }
-        .circle-bg { fill: none; stroke: var(--soft-pink); stroke-width: 10; }
-        .circle-progress { fill: none; stroke: var(--main-pink); stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: 0.5s; }
-        .circle-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; }
-    </style>
 </head>
 <body>
+    <div id="toast">Збережено ✨</div>
 
     <div id="welcome-page" class="page active">
-        <div class="card" style="text-align: center; padding: 50px 20px;">
+        <div class="card welcome-card">
             <h1>Вітаю! ✨</h1>
-            <p>Ваш розумний помічник готовий до роботи.</p>
+            <p>Ваш персональний асистент готовий до роботи.</p>
             <button class="btn" onclick="showPage('main-app')">Зайти в програмку</button>
         </div>
     </div>
 
     <div id="main-app" class="page">
         <div id="end-reminder" class="notification">
-            ⚠️ <b>Схоже, ваші місячні закінчилися?</b><br>
-            Будь ласка, внесіть дату закінчення.
-            <button class="btn" style="padding: 8px; font-size: 12px; background: #666;" onclick="showPage('setup-cycle-page')">Внести дату</button>
+            ⚠️ <b>Місячні закінчилися?</b> Внесіть дату закінчення.
+            <button class="btn btn-small" onclick="showPage('setup-cycle-page')">Внести дату</button>
         </div>
 
         <div class="card">
-            <div id="cycle-display">
-                <div class="circle-container">
-                    <svg width="160" height="160">
-                        <circle class="circle-bg" cx="80" cy="80" r="70"></circle>
-                        <circle id="progress-bar" class="circle-progress" cx="80" cy="80" r="70" stroke-dasharray="0 440"></circle>
-                    </svg>
-                    <div class="circle-text">
-                        <div id="day-num" style="font-size: 36px; font-weight: bold; color: var(--main-pink);">?</div>
-                        <div style="font-size: 11px; color: #888;">день циклу</div>
-                        <div id="days-left" style="font-size: 12px; font-weight: bold; margin-top: 5px;"></div>
-                    </div>
+            <div class="circle-container">
+                <svg width="160" height="160">
+                    <circle class="circle-bg" cx="80" cy="80" r="70"></circle>
+                    <circle id="progress-bar" class="circle-progress" cx="80" cy="80" r="70" stroke-dasharray="0 440"></circle>
+                </svg>
+                <div class="circle-text">
+                    <div id="day-num">?</div>
+                    <div class="label">день циклу</div>
+                    <div id="days-left"></div>
                 </div>
-                <h3 id="phase-name" style="text-align: center; color: var(--main-pink); margin-top: 10px;">Завантаження...</h3>
             </div>
+            <h3 id="phase-name">Завантаження...</h3>
         </div>
 
         <button class="btn" onclick="showPage('profile-page')">👤 Мій Профіль & Налаштування</button>
@@ -73,11 +50,11 @@
             <label>Ваш вік:</label>
             <input type="number" id="user-age" class="input-field">
             <label>Тривалість кровотечі (днів):</label>
-            <input type="number" id="period-duration" class="input-field" value="5">
+            <input type="number" id="period-duration" class="input-field">
             <button class="btn" onclick="saveProfile()">Зберегти профіль</button>
         </div>
-        <button class="btn" style="background:#7f8c8d" onclick="showPage('setup-cycle-page')">⚙️ Налаштувати цикл</button>
-        <button class="btn" style="background:#ccc" onclick="showPage('main-app')">Назад</button>
+        <button class="btn btn-secondary" onclick="showPage('setup-cycle-page')">⚙️ Налаштувати цикл</button>
+        <button class="btn btn-back" onclick="showPage('main-app')">Назад</button>
     </div>
 
     <div id="setup-cycle-page" class="page">
@@ -87,147 +64,17 @@
             <input type="date" id="start-date" class="input-field">
             <label>Закінчення:</label>
             <input type="date" id="end-date" class="input-field">
-            
-            <div style="margin: 15px 0;">
+            <div class="checkbox-group">
                 <input type="checkbox" id="still-going" onchange="toggleEndInput(this)"> 
                 <label for="still-going">Ще тривають ⏳</label>
             </div>
-            
             <button class="btn" onclick="saveCycle()">Зберегти дані</button>
-            <button class="btn" style="background:#ccc" onclick="showPage('main-app')">Скасувати</button>
+            <button class="btn btn-back" onclick="showPage('main-app')">Скасувати</button>
         </div>
     </div>
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            if (pageId === 'main-app') renderData();
-        }
-
-        function toggleEndInput(cb) {
-            const endInput = document.getElementById('end-date');
-            endInput.disabled = cb.checked;
-            if(cb.checked) endInput.value = "";
-        }
-
-        // --- ФУНКЦІЯ ЗБЕРЕЖЕННЯ ПРОФІЛЮ ---
-        function saveProfile() {
-            const name = document.getElementById('user-name').value;
-            const age = document.getElementById('user-age').value;
-            const pLen = document.getElementById('period-duration').value;
-
-            // Зберігаємо кожен пункт окремо
-            localStorage.setItem('user_name', name);
-            localStorage.setItem('user_age', age);
-            localStorage.setItem('period_len', pLen || 5);
-
-            // Зворотний зв'язок для користувача
-            if(tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            tg.showAlert("Профіль оновлено! ✅");
-            
-            showPage('main-app');
-        }
-
-        function saveCycle() {
-            localStorage.setItem('user_start_date', document.getElementById('start-date').value);
-            localStorage.setItem('user_end_date', document.getElementById('end-date').value);
-            localStorage.setItem('is_active', document.getElementById('still-going').checked);
-            
-            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            showPage('main-app');
-        }
-
-        function renderData() {
-            const start = localStorage.getItem('user_start_date');
-            if (!start) return;
-
-            const startDate = new Date(start);
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            
-            const cycleLen = 28; 
-            const periodLen = parseInt(localStorage.getItem('period_len') || 5); 
-            const endDateStr = localStorage.getItem('user_end_date');
-            const isActive = localStorage.getItem('is_active') === 'true';
-            
-            const diffTime = today - startDate;
-            const currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            
-            const dayNumEl = document.getElementById('day-num');
-            const daysLeftEl = document.getElementById('days-left');
-            const phaseEl = document.getElementById('phase-name');
-            const progressEl = document.getElementById('progress-bar');
-            const reminder = document.getElementById('end-reminder');
-
-            dayNumEl.innerText = currentDay;
-
-            let isBleeding = false;
-            if (isActive) {
-                isBleeding = true;
-            } else if (endDateStr) {
-                const endDate = new Date(endDateStr);
-                if (today <= endDate) isBleeding = true;
-            } else if (currentDay <= periodLen) {
-                isBleeding = true;
-            }
-
-            if (isBleeding) {
-                const daysToPeriodEnd = periodLen - currentDay + 1;
-                phaseEl.innerText = "Менструальна фаза 🩸";
-                daysLeftEl.innerText = daysToPeriodEnd > 0 ? `кінець за ${daysToPeriodEnd} дн.` : "закінчуються сьогодні";
-                daysLeftEl.style.color = "var(--main-pink)";
-                
-                const bleedProgress = (currentDay / periodLen) * 440;
-                progressEl.style.strokeDasharray = `${bleedProgress} 440`;
-                progressEl.style.stroke = "var(--main-pink)";
-
-                if (isActive && currentDay > periodLen) {
-                    reminder.style.display = 'block';
-                } else {
-                    reminder.style.display = 'none';
-                }
-            } else {
-                reminder.style.display = 'none';
-                const daysToNext = cycleLen - ((currentDay - 1) % cycleLen);
-                
-                let phaseName = "Фолікулярна фаза";
-                let dayInCycle = (currentDay - 1) % cycleLen;
-                if (dayInCycle > 13 && dayInCycle <= 16) phaseName = "Овуляція ✨";
-                else if (dayInCycle > 16 || dayInCycle == 0) phaseName = "Лютеїнова фаза";
-                
-                phaseEl.innerText = phaseName;
-                daysLeftEl.innerText = `до наступних: ${daysToNext} дн.`;
-                daysLeftEl.style.color = "var(--water-blue)";
-                
-                const cycleProgress = (dayInCycle / cycleLen) * 440;
-                progressEl.style.strokeDasharray = `${cycleProgress} 440`;
-                progressEl.style.stroke = "var(--water-blue)";
-            }
-        }
-
-        // --- ЗАВАНТАЖЕННЯ ДАНИХ ПРИ ЗАПУСКУ ---
-        window.onload = () => {
-            // Підтягуємо ім'я
-            const savedName = localStorage.getItem('user_name');
-            if (savedName) document.getElementById('user-name').value = savedName;
-            
-            // Підтягуємо вік
-            const savedAge = localStorage.getItem('user_age');
-            if (savedAge) document.getElementById('user-age').value = savedAge;
-
-            // Підтягуємо тривалість
-            const savedLen = localStorage.getItem('period_len');
-            if (savedLen) document.getElementById('period-duration').value = savedLen;
-
-            // Якщо дата циклу вже є — показуємо головний екран
-            if (localStorage.getItem('user_start_date')) {
-                showPage('main-app');
-            }
-        };
-    </script>
+    <script src="js/app.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/calendar.js"></script>
 </body>
 </html>
