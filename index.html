@@ -2,93 +2,153 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expert Women Health</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Expert Women Health PRO</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff5f7; color: #4a4a4a; text-align: center; padding: 20px; }
-        .container { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(255, 133, 162, 0.2); }
-        .cycle-circle { width: 180px; height: 180px; border-radius: 50%; border: 8px solid #ff85a2; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fff; }
-        .day-num { font-size: 32px; font-weight: bold; color: #ff85a2; }
-        .advice-card { background: #fff1f3; border-radius: 15px; padding: 15px; margin-top: 20px; border-left: 5px solid #ff85a2; text-align: left; }
-        .btn { background: #ff85a2; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-size: 16px; margin-top: 20px; width: 100%; font-weight: bold; }
-        input[type="date"] { padding: 10px; border-radius: 10px; border: 1px solid #ddd; margin-top: 10px; width: 80%; }
+        :root { --main-pink: #ff85a2; --soft-pink: #fff1f3; --text-dark: #4a4a4a; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: #fafafa; color: var(--text-dark); margin: 0; padding: 15px; }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        
+        /* Цикл */
+        .circle-container { position: relative; width: 160px; height: 160px; margin: 0 auto 20px; }
+        .circle-bg { fill: none; stroke: var(--soft-pink); stroke-width: 10; }
+        .circle-progress { fill: none; stroke: var(--main-pink); stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dasharray 0.5s; }
+        .circle-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        
+        /* Симптоми */
+        .symptoms-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .symptom-item { background: var(--soft-pink); border-radius: 12px; padding: 10px; font-size: 20px; cursor: pointer; border: 2px solid transparent; transition: 0.3s; }
+        .symptom-item.active { border-color: var(--main-pink); background: white; transform: scale(1.05); }
+        .symptom-label { font-size: 10px; display: block; margin-top: 5px; }
+
+        /* Календар прогнозів */
+        .forecast { display: flex; justify-content: space-between; margin-top: 15px; font-size: 12px; }
+        .forecast-item { text-align: center; padding: 5px; }
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-bottom: 4px; }
+
+        .btn { background: var(--main-pink); color: white; border: none; padding: 14px; border-radius: 15px; width: 100%; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .secondary-btn { background: none; color: var(--main-pink); border: 1px solid var(--main-pink); padding: 10px; border-radius: 12px; width: 100%; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Мій асистент 🩺</h2>
-        
-        <div id="setup-view">
-            <p>Вкажіть дату початку останнього циклу:</p>
-            <input type="date" id="last-period-date">
-            <button class="btn" onclick="saveData()">Зберегти та розрахувати</button>
+
+    <div id="setup-page" class="card">
+        <h2>Вітаємо, Експерте 🩺</h2>
+        <p>Встановіть дату початку останнього циклу:</p>
+        <input type="date" id="start-date" style="width:100%; padding:10px; margin-bottom:20px; border-radius:10px; border:1px solid #ddd;">
+        <button class="btn" onclick="initApp()">Почати аналіз</button>
+    </div>
+
+    <div id="main-app" style="display:none;">
+        <div class="card">
+            <div class="circle-container">
+                <svg width="160" height="160">
+                    <circle class="circle-bg" cx="80" cy="80" r="70"></circle>
+                    <circle id="progress-bar" class="circle-progress" cx="80" cy="80" r="70" stroke-dasharray="440 440"></circle>
+                </svg>
+                <div class="circle-text">
+                    <div id="day-num" style="font-size: 32px; font-weight: bold; color: var(--main-pink);">1</div>
+                    <div style="font-size: 12px;">день циклу</div>
+                </div>
+            </div>
+            <div id="phase-name" style="font-weight: bold; text-align: center; color: var(--main-pink);">Фолікулярна фаза</div>
+            
+            <div class="forecast">
+                <div class="forecast-item"><span class="dot" style="background:#ff85a2;"></span><br>Місячні<br><b id="p-date">--</b></div>
+                <div class="forecast-item"><span class="dot" style="background:#a285ff;"></span><br>Овуляція<br><b id="o-date">--</b></div>
+                <div class="forecast-item"><span class="dot" style="background:#85ffb8;"></span><br>Шанс<br><b id="f-chance">Високий</b></div>
+            </div>
         </div>
 
-        <div id="main-view" style="display:none;">
-            <div class="cycle-circle">
-                <div id="cycle-day" class="day-num">?</div>
-                <div style="font-size: 14px;">день циклу</div>
+        <div class="card">
+            <h4 style="margin:0;">Як ви почуваєтесь сьогодні?</h4>
+            <div class="symptoms-grid">
+                <div class="symptom-item" onclick="toggleSymptom(this, 'energized')">⚡<span class="symptom-label">Енергія</span></div>
+                <div class="symptom-item" onclick="toggleSymptom(this, 'sad')">😔<span class="symptom-label">Сум</span></div>
+                <div class="symptom-item" onclick="toggleSymptom(this, 'pain')">😫<span class="symptom-label">Біль</span></div>
+                <div class="symptom-item" onclick="toggleSymptom(this, 'calm')">🧘<span class="symptom-label">Спокій</span></div>
             </div>
-            <div class="advice-card">
-                <strong>🩺 Порада експерта:</strong>
-                <p id="advice-text">Завантаження персональних рекомендацій...</p>
-            </div>
-            <button class="btn" onclick="resetData()" style="background: #ccc;">Змінити дату</button>
         </div>
+
+        <div class="card" style="border-left: 5px solid var(--main-pink); background: var(--soft-pink);">
+            <h4 style="margin:0;">🩺 Аналітика лікарів</h4>
+            <p id="expert-advice" style="font-size: 14px; line-height: 1.5;">На основі вашої фази та симптомів, рекомендуємо...</p>
+        </div>
+
+        <button class="secondary-btn" onclick="resetApp()">Скинути дані</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Поради від "експертів"
-        const expertTips = {
-            menstrual: "Порада від доктора А. Сміта: Збільште споживання заліза (шпинат, сочевиця) для підтримки енергії.",
-            follicular: "Медичний протокол: Рівень естрогену зростає. Ідеальний час для активного навчання та тренувань.",
-            ovulation: "Рекомендація експертів: Ви можете відчувати піднесення сил. Пийте достатньо води (1.5-2л).",
-            luteal: "Порада нутриціолога: Можлива затримка води. Обмежте сіль та додайте продукти з магнієм."
-        };
-
-        function calculateCycle() {
-            const savedDate = localStorage.getItem('lastPeriod');
-            if (savedDate) {
-                const start = new Date(savedDate);
-                const today = new Date();
-                const diffTime = Math.abs(today - start);
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) % 28; // Беремо цикл 28 днів
-                
-                document.getElementById('cycle-day').innerText = diffDays + 1;
-                
-                // Визначаємо фазу та пораду
-                let tip = "";
-                if (diffDays <= 5) tip = expertTips.menstrual;
-                else if (diffDays <= 13) tip = expertTips.follicular;
-                else if (diffDays <= 16) tip = expertTips.ovulation;
-                else tip = expertTips.luteal;
-                
-                document.getElementById('advice-text').innerText = tip;
-                document.getElementById('setup-view').style.display = 'none';
-                document.getElementById('main-view').style.display = 'block';
+        function initApp() {
+            const date = document.getElementById('start-date').value;
+            if (date) {
+                localStorage.setItem('user_start_date', date);
+                renderData();
             }
         }
 
-        function saveData() {
-            const dateInput = document.getElementById('last-period-date').value;
-            if (dateInput) {
-                localStorage.setItem('lastPeriod', dateInput);
-                calculateCycle();
+        function renderData() {
+            const startDate = localStorage.getItem('user_start_date');
+            if (!startDate) return;
+
+            document.getElementById('setup-page').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+
+            const start = new Date(startDate);
+            const today = new Date();
+            const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24)) % 28;
+            const currentDay = diffDays + 1;
+
+            // Оновлюємо прогрес-бар
+            const progress = (currentDay / 28) * 440;
+            document.getElementById('progress-bar').style.strokeDasharray = `${progress} 440`;
+            document.getElementById('day-num').innerText = currentDay;
+
+            // Логіка фаз та прогнозів
+            let phase = "";
+            let advice = "";
+            if (currentDay <= 5) {
+                phase = "Менструальна фаза";
+                advice = "Медичний протокол: Рівень заліза може знижуватися. Рекомендується додати в раціон більше зелених овочів та відпочинку.";
+            } else if (currentDay <= 13) {
+                phase = "Фолікулярна фаза";
+                advice = "Енергія зростає. Згідно з дослідженнями, це найкращий час для нових починань та інтенсивних тренувань.";
+            } else if (currentDay <= 16) {
+                phase = "Овуляція";
+                advice = "Пік фертильності. Можливе загострення почуттів. Пийте більше води та слідкуйте за температурою тіла.";
+            } else {
+                phase = "Лютеїнова фаза";
+                advice = "Підготовка до нового циклу. Рівень прогестерону високий. Порада лікарів: зменште цукор та кофеїн для легшого самопочуття.";
             }
+
+            document.getElementById('phase-name').innerText = phase;
+            document.getElementById('expert-advice').innerText = advice;
+            
+            // Прогнози
+            const nextPeriod = new Date(start);
+            nextPeriod.setDate(start.getDate() + 28);
+            document.getElementById('p-date').innerText = nextPeriod.toLocaleDateString('uk-UA', {day:'numeric', month:'short'});
+            
+            const ovulation = new Date(start);
+            ovulation.setDate(start.getDate() + 14);
+            document.getElementById('o-date').innerText = ovulation.toLocaleDateString('uk-UA', {day:'numeric', month:'short'});
         }
 
-        function resetData() {
-            localStorage.removeItem('lastPeriod');
-            document.getElementById('setup-view').style.display = 'block';
-            document.getElementById('main-view').style.display = 'none';
+        function toggleSymptom(el, name) {
+            el.classList.toggle('active');
+            // Тут можна додати логіку, яка змінює пораду AI залежно від симптому!
         }
 
-        // Запуск при завантаженні
-        calculateCycle();
+        function resetApp() {
+            localStorage.removeItem('user_start_date');
+            location.reload();
+        }
+
+        window.onload = renderData;
     </script>
 </body>
 </html>
