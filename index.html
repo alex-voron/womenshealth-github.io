@@ -19,28 +19,28 @@
     </div>
 
     <div id="main-app" class="page">
-        <div id="end-reminder" class="notification">
-            ⚠️ <b>Місячні закінчилися?</b> Внесіть дату закінчення.
-            <button class="btn btn-small" onclick="showPage('setup-cycle-page')">Внести дату</button>
-        </div>
-
-        <div class="card">
-            <div class="circle-container">
-                <svg width="160" height="160">
-                    <circle class="circle-bg" cx="80" cy="80" r="70"></circle>
-                    <circle id="progress-bar" class="circle-progress" cx="80" cy="80" r="70" stroke-dasharray="0 440"></circle>
-                </svg>
-                <div class="circle-text">
-                    <div id="day-num">?</div>
-                    <div class="label">день циклу</div>
-                    <div id="days-left"></div>
-                </div>
-            </div>
-            <h3 id="phase-name">Завантаження...</h3>
-        </div>
-
-        <button class="btn" onclick="showPage('profile-page')">👤 Мій Профіль & Налаштування</button>
+    <div id="end-reminder" class="notification">
+        ⚠️ <b>Місячні закінчилися?</b> Внесіть дату закінчення.
+        <button class="btn btn-small" onclick="showPage('setup-cycle-page')">Внести дату</button>
     </div>
+
+    <div class="card">
+        <div class="circle-container">
+            ...
+        </div>
+        <h3 id="phase-name">Завантаження...</h3>
+    </div>
+
+    <div id="accuracy-check" class="card" style="display:none; border-left: 5px solid var(--water-blue); background: #f0f7ff;">
+        <h4 style="margin-top: 0; color: var(--water-blue);">📊 Перевірка прогнозу</h4>
+        <p style="font-size: 14px; margin-bottom: 15px;">Ваш цикл почався сьогодні? Це допоможе алгоритму Flo-style стати точнішим.</p>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-small" style="background: var(--water-blue); flex: 1;" onclick="confirmPrediction(true)">Так, почався</button>
+            <button class="btn btn-small" style="background: #7f8c8d; flex: 1;" onclick="showPage('setup-cycle-page')">Ні, інша дата</button>
+        </div>
+    </div>
+    <button class="btn" onclick="showPage('profile-page')">👤 Мій Профіль & Налаштування</button>
+</div>
 
     <div id="profile-page" class="page">
         <div class="card">
